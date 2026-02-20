@@ -40,15 +40,15 @@ Phase: DEVELOPMENT
 - [x] Set up Alembic migrations and create initial migration
 - [x] Implement auth system (register, login, logout, JWT middleware, password hashing)
 - [x] Build auth UI (login page, register page, auth templates)
-- [ ] Implement endpoint CRUD (create, list, edit, delete webhook endpoints)
-- [ ] Build endpoint management UI (dashboard, create/edit forms)
-- [ ] Implement webhook receiver (catch-all route that stores incoming requests)
-- [ ] Build webhook history view and request detail inspection UI
+- [x] Implement endpoint CRUD (create, list, edit, delete webhook endpoints)
+- [x] Build endpoint management UI (dashboard, create/edit forms)
+- [x] Implement webhook receiver (catch-all route that stores incoming requests)
+- [x] Build webhook history view and request detail inspection UI
+- [x] Build main dashboard with stats, charts, and recent activity
+- [x] Add search, filtering, and pagination across all list views
+- [x] Write comprehensive test suite (auth, endpoints, receiver, forwarding, API)
 - [ ] Implement webhook forwarding engine with retry logic (background tasks + APScheduler)
 - [ ] Build forwarding configuration UI and forwarding logs view
-- [ ] Build main dashboard with stats, charts, and recent activity
-- [ ] Add search, filtering, and pagination across all list views
-- [ ] Write comprehensive test suite (auth, endpoints, receiver, forwarding, API)
 - [ ] Write Dockerfile and docker-compose.yml
 - [ ] Write README with setup, usage, and deployment instructions
 
@@ -109,6 +109,44 @@ Phase: DEVELOPMENT
   - Auth protection (5 tests: dashboard guard, redirect when logged in, invalid token)
 - All 26 tests passing (2 health + 24 auth)
 
+### Session 4 — ENDPOINTS, RECEIVER & HISTORY
+- Built complete endpoint CRUD service layer:
+  - create, list, get, update, delete endpoints with user ownership checks
+  - Plan-based endpoint limits enforced (free=2, pro=25, team=unlimited)
+  - Request count tracking per endpoint
+- Built webhook receiver (catch-all route):
+  - `api_route /hooks/{endpoint_id}` accepting GET/POST/PUT/PATCH/DELETE/HEAD/OPTIONS
+  - Stores full request: method, headers (JSON), body, query_params (JSON), content_type, source_ip, body_size
+  - Returns configurable response code/body/content-type per endpoint
+  - 1MB body size limit enforced, inactive endpoint rejection (410), 404 for missing endpoints
+- Built webhook history service:
+  - Paginated listing with method filter and body/header/query search
+  - Request detail retrieval by ID
+  - Dashboard stats: requests today, total requests, endpoint count
+- Built complete endpoint management UI:
+  - Endpoints list page with card grid, status badges, request counts
+  - Create endpoint page with name, description, response config (code, body, content-type)
+  - Edit endpoint page with toggle for active/inactive, delete button
+  - Endpoint detail page with:
+    - Webhook URL display with copy-to-clipboard
+    - Stats row (total requests, response code)
+    - Expandable webhook history with inline request inspection
+    - Full headers, body, query params, and metadata display per request
+    - JSON auto-formatting in expanded views
+    - Method filter dropdown and body search
+    - Pagination with previous/next navigation
+  - 404 not-found page for missing/unauthorized endpoints
+  - Empty states for no endpoints and no requests
+- Created shared nav partial for consistent navigation across authenticated pages
+- Updated dashboard with real stats from database (endpoint count, requests today, total requests)
+- Dashboard now shows recent endpoints list with direct links
+- All UI follows consistent design system: Tailwind CSS, brand colors, responsive, proper states
+- Wrote 34 new tests (19 endpoint + 15 receiver/history), all passing:
+  - Endpoint CRUD: list (3), create (6 incl. plan limits), detail (3), edit (4), delete (2), isolation (1)
+  - Receiver: POST/GET/PUT/PATCH/DELETE (5), 404/410 handling (2), request count (1), custom response (1), headers/query storage (2)
+  - History: display (1), method filter (1), search (1), dashboard stats (1)
+- All 60 tests passing (2 health + 24 auth + 19 endpoints + 15 receiver)
+
 ## Known Issues
 (none yet)
 
@@ -136,9 +174,9 @@ hook-dash/
 │       ├── api/
 │       │   ├── __init__.py
 │       │   ├── auth.py          # Auth routes (register, login, logout)
-│       │   ├── endpoints.py     # Endpoint CRUD router (stub)
-│       │   ├── receiver.py      # Webhook receiver router (stub)
-│       │   ├── dashboard.py     # Dashboard route (authenticated)
+│       │   ├── endpoints.py     # Endpoint CRUD routes (list, create, detail, edit, delete)
+│       │   ├── receiver.py      # Webhook receiver catch-all route
+│       │   ├── dashboard.py     # Dashboard with real stats
 │       │   └── forwarding.py    # Forwarding router (stub)
 │       ├── models/
 │       │   ├── __init__.py      # Re-exports all models
@@ -154,23 +192,31 @@ hook-dash/
 │       ├── services/
 │       │   ├── __init__.py
 │       │   ├── auth.py          # Auth service (hash, verify, JWT, register, authenticate)
-│       │   ├── endpoint.py      # Endpoint service (stub)
-│       │   ├── receiver.py      # Receiver service (stub)
+│       │   ├── endpoint.py      # Endpoint CRUD service (create, list, get, update, delete)
+│       │   ├── receiver.py      # Webhook storage, history, stats queries
 │       │   └── forwarding.py    # Forwarding service (stub)
 │       └── templates/
 │           ├── base.html        # Base layout (Tailwind, Inter, HTMX)
 │           ├── landing.html     # Public landing page
+│           ├── partials/
+│           │   └── nav.html     # Shared authenticated nav bar
 │           ├── auth/
 │           │   ├── login.html   # Login page
 │           │   └── register.html # Registration page
-│           └── dashboard/
-│               └── index.html   # Main dashboard (authenticated)
+│           ├── dashboard/
+│           │   └── index.html   # Dashboard with real stats and endpoint list
+│           └── endpoints/
+│               ├── list.html    # Endpoints grid view
+│               ├── new.html     # Create endpoint form
+│               ├── edit.html    # Edit endpoint form
+│               ├── detail.html  # Endpoint detail + webhook history
+│               └── not_found.html # 404 page for endpoints
 └── tests/
     ├── __init__.py
     ├── conftest.py              # Async test fixtures, in-memory SQLite
     ├── test_health.py           # Health check + landing page tests
     ├── test_auth.py             # Auth tests (24 tests: unit + integration)
-    ├── test_endpoints.py        # Endpoint tests (stub)
-    ├── test_receiver.py         # Receiver tests (stub)
+    ├── test_endpoints.py        # Endpoint CRUD tests (19 tests)
+    ├── test_receiver.py         # Receiver + history + dashboard stats tests (15 tests)
     └── test_forwarding.py       # Forwarding tests (stub)
 ```

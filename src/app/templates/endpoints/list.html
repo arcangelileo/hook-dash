@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Endpoints — HookDash{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gray-50">
+    {% set active_nav = "endpoints" %}
+    {% include "partials/nav.html" %}
+
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Endpoints</h1>
+                <p class="mt-1 text-sm text-gray-500">{{ endpoint_count }} of {{ plan_limit }} endpoints used</p>
+            </div>
+            <a href="/endpoints/new" class="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-400 transition-colors">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                New Endpoint
+            </a>
+        </div>
+
+        {% if endpoints %}
+        <!-- Endpoints Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for ep in endpoints %}
+            <a href="/endpoints/{{ ep.id }}" class="rounded-xl bg-white p-6 ring-1 ring-gray-200 shadow-sm hover:shadow-md hover:ring-brand-200 transition-all group">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-lg {% if ep.is_active %}bg-green-50{% else %}bg-gray-100{% endif %}">
+                        <svg class="h-5 w-5 {% if ep.is_active %}text-green-500{% else %}text-gray-400{% endif %}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+                        </svg>
+                    </div>
+                    <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium {% if ep.is_active %}bg-green-50 text-green-700 ring-1 ring-green-600/20{% else %}bg-gray-50 text-gray-600 ring-1 ring-gray-500/10{% endif %}">
+                        {% if ep.is_active %}Active{% else %}Paused{% endif %}
+                    </span>
+                </div>
+                <h3 class="text-sm font-semibold text-gray-900 group-hover:text-brand-600 transition-colors truncate">{{ ep.name }}</h3>
+                {% if ep.description %}
+                <p class="mt-1 text-xs text-gray-500 line-clamp-2">{{ ep.description }}</p>
+                {% endif %}
+                <div class="mt-4 flex items-center justify-between text-xs text-gray-400">
+                    <span class="font-mono">{{ ep.id[:8] }}...</span>
+                    <span>{{ "{:,}".format(ep.request_count) }} requests</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <!-- Empty State -->
+        <div class="rounded-xl bg-white ring-1 ring-gray-200 shadow-sm p-12 text-center">
+            <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-brand-50 mb-4">
+                <svg class="h-8 w-8 text-brand-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+                </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900">No endpoints yet</h3>
+            <p class="mt-2 text-sm text-gray-500 max-w-md mx-auto">
+                Create a webhook endpoint to start capturing incoming requests from your integrations.
+            </p>
+            <a href="/endpoints/new" class="mt-6 inline-flex items-center gap-2 rounded-lg bg-brand-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-400 transition-colors">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Create Endpoint
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

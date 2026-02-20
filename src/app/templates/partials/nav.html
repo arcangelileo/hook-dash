@@ -1,0 +1,36 @@
+<!-- Authenticated top navigation bar -->
+<nav class="bg-white border-b border-gray-200">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="flex h-16 items-center justify-between">
+            <div class="flex items-center gap-6">
+                <a href="/dashboard" class="flex items-center gap-2">
+                    <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-500">
+                        <svg class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+                        </svg>
+                    </div>
+                    <span class="text-lg font-bold text-gray-900">HookDash</span>
+                </a>
+                <div class="hidden sm:flex items-center gap-1">
+                    <a href="/dashboard" class="rounded-lg px-3 py-2 text-sm font-medium {% if active_nav == 'dashboard' %}text-brand-600 bg-brand-50{% else %}text-gray-600 hover:text-gray-900 hover:bg-gray-50{% endif %} transition-colors">Dashboard</a>
+                    <a href="/endpoints" class="rounded-lg px-3 py-2 text-sm font-medium {% if active_nav == 'endpoints' %}text-brand-600 bg-brand-50{% else %}text-gray-600 hover:text-gray-900 hover:bg-gray-50{% endif %} transition-colors">Endpoints</a>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2">
+                    <div class="flex h-8 w-8 items-center justify-center rounded-full bg-brand-100 text-brand-600 text-sm font-semibold">
+                        {{ user.name[0] | upper }}
+                    </div>
+                    <span class="hidden sm:block text-sm font-medium text-gray-700">{{ user.name }}</span>
+                </div>
+                <a href="/auth/logout" class="text-sm text-gray-500 hover:text-gray-700 transition-colors">Sign out</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile nav -->
+    <div class="sm:hidden border-t border-gray-100 px-4 py-2 flex gap-1">
+        <a href="/dashboard" class="flex-1 rounded-lg px-3 py-2 text-sm font-medium text-center {% if active_nav == 'dashboard' %}text-brand-600 bg-brand-50{% else %}text-gray-600{% endif %}">Dashboard</a>
+        <a href="/endpoints" class="flex-1 rounded-lg px-3 py-2 text-sm font-medium text-center {% if active_nav == 'endpoints' %}text-brand-600 bg-brand-50{% else %}text-gray-600{% endif %}">Endpoints</a>
+    </div>
+</nav>
