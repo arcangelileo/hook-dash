@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block title %}HookDash — Webhook Inspection & Debugging Platform{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gradient-to-br from-gray-900 via-brand-950 to-gray-900">
+    <!-- Navigation -->
+    <nav class="border-b border-white/10">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="flex h-16 items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-500">
+                        <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+                        </svg>
+                    </div>
+                    <span class="text-xl font-bold text-white">HookDash</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <a href="/auth/login" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">Sign in</a>
+                    <a href="/auth/register" class="rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-400 transition-colors">Get Started Free</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20 pb-16 text-center">
+        <div class="inline-flex items-center gap-2 rounded-full bg-brand-500/10 px-4 py-1.5 text-sm font-medium text-brand-300 ring-1 ring-brand-500/20 mb-8">
+            <span class="relative flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-brand-500"></span>
+            </span>
+            Now in beta
+        </div>
+        <h1 class="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight">
+            Inspect. Debug.<br>
+            <span class="bg-gradient-to-r from-brand-400 to-cyan-400 bg-clip-text text-transparent">Forward.</span>
+        </h1>
+        <p class="mt-6 text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
+            HookDash captures every incoming webhook with full headers, body, and metadata.
+            Debug integrations in seconds, not hours.
+        </p>
+        <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a href="/auth/register" class="w-full sm:w-auto rounded-lg bg-brand-500 px-8 py-3 text-base font-semibold text-white shadow-lg shadow-brand-500/25 hover:bg-brand-400 transition-all hover:shadow-brand-500/40">
+                Create Free Endpoint
+            </a>
+            <a href="#features" class="w-full sm:w-auto rounded-lg bg-white/5 px-8 py-3 text-base font-semibold text-gray-300 ring-1 ring-white/10 hover:bg-white/10 transition-colors">
+                See How It Works
+            </a>
+        </div>
+
+        <!-- Code Preview -->
+        <div class="mt-16 mx-auto max-w-3xl">
+            <div class="rounded-xl bg-gray-800/50 ring-1 ring-white/10 overflow-hidden shadow-2xl">
+                <div class="flex items-center gap-2 px-4 py-3 bg-gray-800/80 border-b border-white/5">
+                    <div class="flex gap-1.5">
+                        <div class="h-3 w-3 rounded-full bg-red-500/80"></div>
+                        <div class="h-3 w-3 rounded-full bg-yellow-500/80"></div>
+                        <div class="h-3 w-3 rounded-full bg-green-500/80"></div>
+                    </div>
+                    <span class="text-xs text-gray-500 ml-2">Terminal</span>
+                </div>
+                <div class="p-6 text-left font-mono text-sm">
+                    <p class="text-gray-500"># Point your webhook at your HookDash endpoint</p>
+                    <p class="text-green-400 mt-2">$ curl -X POST https://hookdash.dev/hooks/a1b2c3d4 \</p>
+                    <p class="text-green-400 pl-6">-H "Content-Type: application/json" \</p>
+                    <p class="text-green-400 pl-6">-d '{"event": "payment.completed", "amount": 4999}'</p>
+                    <p class="text-gray-400 mt-3">{"ok": true}</p>
+                    <p class="text-gray-500 mt-4"># Instantly view the full request in your dashboard</p>
+                    <p class="text-brand-400 mt-1">&#10003; Request captured &mdash; headers, body, query params, IP</p>
+                    <p class="text-brand-400">&#10003; Auto-forwarded to http://localhost:3000/webhooks</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features -->
+    <div id="features" class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-24">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl sm:text-4xl font-bold text-white">Everything you need for webhook development</h2>
+            <p class="mt-4 text-lg text-gray-400">Stop guessing what your webhooks look like. See everything.</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Feature 1 -->
+            <div class="rounded-xl bg-white/5 p-8 ring-1 ring-white/10 hover:ring-brand-500/50 transition-all">
+                <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-500/10 mb-5">
+                    <svg class="h-6 w-6 text-brand-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-white mb-2">Full Request Inspection</h3>
+                <p class="text-gray-400 leading-relaxed">See every detail — HTTP method, headers, body, query params, source IP, and timestamps. JSON payloads are auto-formatted.</p>
+            </div>
+            <!-- Feature 2 -->
+            <div class="rounded-xl bg-white/5 p-8 ring-1 ring-white/10 hover:ring-brand-500/50 transition-all">
+                <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-500/10 mb-5">
+                    <svg class="h-6 w-6 text-brand-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-white mb-2">Auto-Forward to Localhost</h3>
+                <p class="text-gray-400 leading-relaxed">Forward captured webhooks to your local dev server or staging environment. Built-in retry with exponential backoff.</p>
+            </div>
+            <!-- Feature 3 -->
+            <div class="rounded-xl bg-white/5 p-8 ring-1 ring-white/10 hover:ring-brand-500/50 transition-all">
+                <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-500/10 mb-5">
+                    <svg class="h-6 w-6 text-brand-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-white mb-2">Dashboard & Analytics</h3>
+                <p class="text-gray-400 leading-relaxed">Monitor request volume, success rates, and recent activity at a glance. Track every endpoint in one place.</p>
+            </div>
+            <!-- Feature 4 -->
+            <div class="rounded-xl bg-white/5 p-8 ring-1 ring-white/10 hover:ring-brand-500/50 transition-all">
+                <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-500/10 mb-5">
+                    <svg class="h-6 w-6 text-brand-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-white mb-2">Request History</h3>
+                <p class="text-gray-400 leading-relaxed">Browse, search, and filter your webhook history. Find any request by method, status, content type, or body content.</p>
+            </div>
+            <!-- Feature 5 -->
+            <div class="rounded-xl bg-white/5 p-8 ring-1 ring-white/10 hover:ring-brand-500/50 transition-all">
+                <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-500/10 mb-5">
+                    <svg class="h-6 w-6 text-brand-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182M2.985 19.644l3.181-3.183" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-white mb-2">Retry Failed Deliveries</h3>
+                <p class="text-gray-400 leading-relaxed">Replay any webhook to your forwarding target. Debug intermittent failures without waiting for the next real event.</p>
+            </div>
+            <!-- Feature 6 -->
+            <div class="rounded-xl bg-white/5 p-8 ring-1 ring-white/10 hover:ring-brand-500/50 transition-all">
+                <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-500/10 mb-5">
+                    <svg class="h-6 w-6 text-brand-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-white mb-2">Unique Secure URLs</h3>
+                <p class="text-gray-400 leading-relaxed">Each endpoint gets a unique UUID-based URL. Unguessable by default. Custom response codes for Pro users.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pricing -->
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-24">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl sm:text-4xl font-bold text-white">Simple, transparent pricing</h2>
+            <p class="mt-4 text-lg text-gray-400">Start free. Upgrade when you need more.</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <!-- Free -->
+            <div class="rounded-xl bg-white/5 p-8 ring-1 ring-white/10">
+                <h3 class="text-lg font-semibold text-white">Free</h3>
+                <p class="mt-2 text-sm text-gray-400">Perfect for trying it out</p>
+                <div class="mt-6">
+                    <span class="text-4xl font-bold text-white">$0</span>
+                    <span class="text-gray-400">/mo</span>
+                </div>
+                <ul class="mt-8 space-y-3 text-sm text-gray-300">
+                    <li class="flex items-center gap-2"><svg class="h-4 w-4 text-brand-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>2 endpoints</li>
+                    <li class="flex items-center gap-2"><svg class="h-4 w-4 text-brand-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>100 requests/day</li>
+                    <li class="flex items-center gap-2"><svg class="h-4 w-4 text-brand-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>24-hour history</li>
+                </ul>
+                <a href="/auth/register" class="mt-8 block w-full rounded-lg bg-white/10 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-white/20 transition-colors">Get Started</a>
+            </div>
+            <!-- Pro -->
+            <div class="rounded-xl bg-white/5 p-8 ring-2 ring-brand-500 relative">
+                <div class="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-brand-500 px-3 py-0.5 text-xs font-semibold text-white">Most Popular</div>
+                <h3 class="text-lg font-semibold text-white">Pro</h3>
+                <p class="mt-2 text-sm text-gray-400">For serious developers</p>
+                <div class="mt-6">
+                    <span class="text-4xl font-bold text-white">$12</span>
+                    <span class="text-gray-400">/mo</span>
+                </div>
+                <ul class="mt-8 space-y-3 text-sm text-gray-300">
+                    <li class="flex items-center gap-2"><svg class="h-4 w-4 text-brand-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>25 endpoints</li>
+                    <li class="flex items-center gap-2"><svg class="h-4 w-4 text-brand-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>10K requests/day</li>
+                    <li class="flex items-center gap-2"><svg class="h-4 w-4 text-brand-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>30-day history</li>
+                    <li class="flex items-center gap-2"><svg class="h-4 w-4 text-brand-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>Webhook forwarding</li>
+                    <li class="flex items-center gap-2"><svg class="h-4 w-4 text-brand-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>Custom response codes</li>
+                </ul>
+                <a href="/auth/register" class="mt-8 block w-full rounded-lg bg-brand-500 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-brand-400 transition-colors shadow-lg shadow-brand-500/25">Start Pro Trial</a>
+            </div>
+            <!-- Team -->
+            <div class="rounded-xl bg-white/5 p-8 ring-1 ring-white/10">
+                <h3 class="text-lg font-semibold text-white">Team</h3>
+                <p class="mt-2 text-sm text-gray-400">For engineering teams</p>
+                <div class="mt-6">
+                    <span class="text-4xl font-bold text-white">$39</span>
+                    <span class="text-gray-400">/mo</span>
+                </div>
+                <ul class="mt-8 space-y-3 text-sm text-gray-300">
+                    <li class="flex items-center gap-2"><svg class="h-4 w-4 text-brand-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>Unlimited endpoints</li>
+                    <li class="flex items-center gap-2"><svg class="h-4 w-4 text-brand-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>100K requests/day</li>
+                    <li class="flex items-center gap-2"><svg class="h-4 w-4 text-brand-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>90-day history</li>
+                    <li class="flex items-center gap-2"><svg class="h-4 w-4 text-brand-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>Team workspaces</li>
+                    <li class="flex items-center gap-2"><svg class="h-4 w-4 text-brand-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>API access</li>
+                </ul>
+                <a href="/auth/register" class="mt-8 block w-full rounded-lg bg-white/10 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-white/20 transition-colors">Contact Sales</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/10 py-12">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-2">
+                    <div class="flex h-7 w-7 items-center justify-center rounded-md bg-brand-500">
+                        <svg class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+                        </svg>
+                    </div>
+                    <span class="text-sm font-semibold text-white">HookDash</span>
+                </div>
+                <p class="text-sm text-gray-500">&copy; 2026 HookDash. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</div>
+{% endblock %}
