@@ -37,9 +37,9 @@ Phase: DEVELOPMENT
 ## Task Backlog
 - [x] Create project structure, pyproject.toml, and FastAPI app skeleton with health check
 - [x] Set up database models (User, Endpoint, WebhookRequest, ForwardingConfig, ForwardingLog)
-- [ ] Set up Alembic migrations and create initial migration
-- [ ] Implement auth system (register, login, logout, JWT middleware, password hashing)
-- [ ] Build auth UI (login page, register page, auth templates)
+- [x] Set up Alembic migrations and create initial migration
+- [x] Implement auth system (register, login, logout, JWT middleware, password hashing)
+- [x] Build auth UI (login page, register page, auth templates)
 - [ ] Implement endpoint CRUD (create, list, edit, delete webhook endpoints)
 - [ ] Build endpoint management UI (dashboard, create/edit forms)
 - [ ] Implement webhook receiver (catch-all route that stores incoming requests)
@@ -77,6 +77,38 @@ Phase: DEVELOPMENT
 - Created GitHub repo: https://github.com/arcangelileo/hook-dash
 - Pushed to both master and main branches
 
+### Session 3 — AUTH SYSTEM
+- Generated and applied initial Alembic migration (all 5 tables: users, endpoints, webhook_requests, forwarding_configs, forwarding_logs)
+- Built complete auth service layer:
+  - Password hashing with bcrypt via passlib
+  - JWT token creation/verification with python-jose (HS256, 24h expiry)
+  - User registration with email uniqueness check
+  - User authentication with email/password verification
+- Built auth API routes with form-based flow:
+  - GET/POST /auth/register — registration page with server-side validation
+  - GET/POST /auth/login — login page with error feedback
+  - GET/POST /auth/logout — cookie clearing + redirect
+  - JWT stored in httponly cookie (samesite=lax, 24h max-age)
+- Created auth dependency injection:
+  - `get_current_user` — raises 401 if no valid token
+  - `get_optional_user` — returns None if not authenticated
+  - Custom 401 exception handler redirects to login page
+- Built professional auth UI templates:
+  - Register page with name/email/password form, validation errors, plan info card
+  - Login page with email/password form, error/success states
+  - Dark gradient theme matching landing page, responsive design
+- Built initial dashboard page (authenticated):
+  - Top nav with user avatar, navigation links, sign out
+  - Stats grid (endpoints, requests today, total requests, plan)
+  - Empty state CTA to create first endpoint
+- Wrote 24 auth tests (unit + integration), all passing:
+  - Password hashing (3 tests), JWT (3 tests)
+  - Registration flow (6 tests: success, validation, duplicate email)
+  - Login flow (5 tests: success, wrong password, nonexistent user, empty fields)
+  - Logout (2 tests: POST and GET)
+  - Auth protection (5 tests: dashboard guard, redirect when logged in, invalid token)
+- All 26 tests passing (2 health + 24 auth)
+
 ## Known Issues
 (none yet)
 
@@ -92,19 +124,21 @@ hook-dash/
 │   ├── env.py
 │   ├── script.py.mako
 │   └── versions/
-│       └── .gitkeep
+│       ├── .gitkeep
+│       └── db1a7b55b4f3_initial_schema.py
 ├── src/
 │   └── app/
 │       ├── __init__.py
 │       ├── main.py              # FastAPI app, lifespan, health check, landing page
 │       ├── config.py            # Pydantic Settings (env vars, plan limits)
 │       ├── database.py          # Async SQLAlchemy engine, session, Base
+│       ├── dependencies.py       # Auth dependencies (get_current_user, get_optional_user)
 │       ├── api/
 │       │   ├── __init__.py
-│       │   ├── auth.py          # Auth router (stub)
+│       │   ├── auth.py          # Auth routes (register, login, logout)
 │       │   ├── endpoints.py     # Endpoint CRUD router (stub)
 │       │   ├── receiver.py      # Webhook receiver router (stub)
-│       │   ├── dashboard.py     # Dashboard router (stub)
+│       │   ├── dashboard.py     # Dashboard route (authenticated)
 │       │   └── forwarding.py    # Forwarding router (stub)
 │       ├── models/
 │       │   ├── __init__.py      # Re-exports all models
@@ -119,18 +153,23 @@ hook-dash/
 │       │   └── webhook.py       # WebhookRequestResponse
 │       ├── services/
 │       │   ├── __init__.py
-│       │   ├── auth.py          # Auth service (stub)
+│       │   ├── auth.py          # Auth service (hash, verify, JWT, register, authenticate)
 │       │   ├── endpoint.py      # Endpoint service (stub)
 │       │   ├── receiver.py      # Receiver service (stub)
 │       │   └── forwarding.py    # Forwarding service (stub)
 │       └── templates/
 │           ├── base.html        # Base layout (Tailwind, Inter, HTMX)
-│           └── landing.html     # Public landing page
+│           ├── landing.html     # Public landing page
+│           ├── auth/
+│           │   ├── login.html   # Login page
+│           │   └── register.html # Registration page
+│           └── dashboard/
+│               └── index.html   # Main dashboard (authenticated)
 └── tests/
     ├── __init__.py
     ├── conftest.py              # Async test fixtures, in-memory SQLite
     ├── test_health.py           # Health check + landing page tests
-    ├── test_auth.py             # Auth tests (stub)
+    ├── test_auth.py             # Auth tests (24 tests: unit + integration)
     ├── test_endpoints.py        # Endpoint tests (stub)
     ├── test_receiver.py         # Receiver tests (stub)
     └── test_forwarding.py       # Forwarding tests (stub)

@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard — HookDash{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Top Nav -->
+    <nav class="bg-white border-b border-gray-200">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="flex h-16 items-center justify-between">
+                <div class="flex items-center gap-6">
+                    <a href="/dashboard" class="flex items-center gap-2">
+                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-500">
+                            <svg class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+                            </svg>
+                        </div>
+                        <span class="text-lg font-bold text-gray-900">HookDash</span>
+                    </a>
+                    <div class="hidden sm:flex items-center gap-1">
+                        <a href="/dashboard" class="rounded-lg px-3 py-2 text-sm font-medium text-brand-600 bg-brand-50">Dashboard</a>
+                        <a href="/endpoints" class="rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors">Endpoints</a>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2">
+                        <div class="flex h-8 w-8 items-center justify-center rounded-full bg-brand-100 text-brand-600 text-sm font-semibold">
+                            {{ user.name[0] | upper }}
+                        </div>
+                        <span class="hidden sm:block text-sm font-medium text-gray-700">{{ user.name }}</span>
+                    </div>
+                    <a href="/auth/logout" class="text-sm text-gray-500 hover:text-gray-700 transition-colors">Sign out</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+        <div class="mb-8">
+            <h1 class="text-2xl font-bold text-gray-900">Welcome back, {{ user.name.split(' ')[0] }}</h1>
+            <p class="mt-1 text-sm text-gray-500">Here's an overview of your webhook activity.</p>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div class="rounded-xl bg-white p-6 ring-1 ring-gray-200 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <p class="text-sm font-medium text-gray-500">Active Endpoints</p>
+                    <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-50">
+                        <svg class="h-4 w-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+                        </svg>
+                    </div>
+                </div>
+                <p class="mt-2 text-3xl font-bold text-gray-900">0</p>
+                <p class="mt-1 text-xs text-gray-400">of {{ plan_limit }} available</p>
+            </div>
+            <div class="rounded-xl bg-white p-6 ring-1 ring-gray-200 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <p class="text-sm font-medium text-gray-500">Requests Today</p>
+                    <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-50">
+                        <svg class="h-4 w-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                        </svg>
+                    </div>
+                </div>
+                <p class="mt-2 text-3xl font-bold text-gray-900">0</p>
+                <p class="mt-1 text-xs text-gray-400">requests captured</p>
+            </div>
+            <div class="rounded-xl bg-white p-6 ring-1 ring-gray-200 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <p class="text-sm font-medium text-gray-500">Total Requests</p>
+                    <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-50">
+                        <svg class="h-4 w-4 text-purple-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+                        </svg>
+                    </div>
+                </div>
+                <p class="mt-2 text-3xl font-bold text-gray-900">0</p>
+                <p class="mt-1 text-xs text-gray-400">all time</p>
+            </div>
+            <div class="rounded-xl bg-white p-6 ring-1 ring-gray-200 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <p class="text-sm font-medium text-gray-500">Plan</p>
+                    <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-50">
+                        <svg class="h-4 w-4 text-amber-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+                        </svg>
+                    </div>
+                </div>
+                <p class="mt-2 text-3xl font-bold text-gray-900 capitalize">{{ user.plan }}</p>
+                <p class="mt-1 text-xs text-gray-400">current plan</p>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="rounded-xl bg-white ring-1 ring-gray-200 shadow-sm p-12 text-center">
+            <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-brand-50 mb-4">
+                <svg class="h-8 w-8 text-brand-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+                </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900">Create your first endpoint</h3>
+            <p class="mt-2 text-sm text-gray-500 max-w-md mx-auto">
+                Create a webhook endpoint to start capturing incoming requests. Point your third-party services at the generated URL.
+            </p>
+            <a href="/endpoints/new" class="mt-6 inline-flex items-center gap-2 rounded-lg bg-brand-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-400 transition-colors">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                New Endpoint
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
