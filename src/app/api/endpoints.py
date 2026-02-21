@@ -73,7 +73,10 @@ async def endpoint_create(
     form = await request.form()
     name = str(form.get("name", "")).strip()
     description = str(form.get("description", "")).strip()
-    response_code = int(form.get("response_code", 200))
+    try:
+        response_code = int(form.get("response_code", 200))
+    except (ValueError, TypeError):
+        response_code = 200
     response_body = str(form.get("response_body", '{"ok": true}'))
     response_content_type = str(form.get("response_content_type", "application/json"))
 
@@ -131,7 +134,10 @@ async def endpoint_detail(
 
     method_filter = request.query_params.get("method")
     search = request.query_params.get("search")
-    page = int(request.query_params.get("page", 1))
+    try:
+        page = max(1, int(request.query_params.get("page", 1)))
+    except (ValueError, TypeError):
+        page = 1
     per_page = 20
     offset = (page - 1) * per_page
 
@@ -205,7 +211,10 @@ async def endpoint_update(
     name = str(form.get("name", "")).strip()
     description = str(form.get("description", "")).strip()
     is_active = form.get("is_active") == "on"
-    response_code = int(form.get("response_code", endpoint.response_code))
+    try:
+        response_code = int(form.get("response_code", endpoint.response_code))
+    except (ValueError, TypeError):
+        response_code = endpoint.response_code
     response_body = str(form.get("response_body", endpoint.response_body))
     response_content_type = str(form.get("response_content_type", endpoint.response_content_type))
 

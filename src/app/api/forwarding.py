@@ -35,8 +35,14 @@ async def save_forwarding(
     form = await request.form()
     target_url = str(form.get("target_url", "")).strip()
     is_active = form.get("is_active") == "on"
-    max_retries = int(form.get("max_retries", 5))
-    timeout_seconds = int(form.get("timeout_seconds", 30))
+    try:
+        max_retries = int(form.get("max_retries", 5))
+    except (ValueError, TypeError):
+        max_retries = 5
+    try:
+        timeout_seconds = int(form.get("timeout_seconds", 30))
+    except (ValueError, TypeError):
+        timeout_seconds = 30
 
     if not target_url:
         return RedirectResponse(
@@ -101,7 +107,10 @@ async def forwarding_logs_page(
     if not config:
         return RedirectResponse(url=f"/endpoints/{endpoint_id}", status_code=302)
 
-    page = int(request.query_params.get("page", 1))
+    try:
+        page = max(1, int(request.query_params.get("page", 1)))
+    except (ValueError, TypeError):
+        page = 1
     per_page = 50
     offset = (page - 1) * per_page
 

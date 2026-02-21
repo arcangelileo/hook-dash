@@ -1,6 +1,6 @@
 # HookDash
 
-Phase: QA
+Phase: DEPLOYMENT
 
 ## Project Spec
 - **Repo**: https://github.com/arcangelileo/hook-dash
@@ -207,8 +207,41 @@ Phase: QA
   - Project structure overview
 - Changed phase to QA — all backlog items complete
 
+### Session 6 — QA & POLISH
+- Ran full audit of all source files, templates, routes, services, and tests
+- **87/87 tests passing** before changes
+
+#### Bugs Found & Fixed:
+1. **500 crash on non-numeric form inputs** (CRITICAL): `int()` conversion in endpoints.py (create, edit, detail page param) and forwarding.py (max_retries, timeout_seconds, logs page param) would crash with unhandled ValueError on non-numeric input. Fixed with try/except fallback to defaults in all 6 locations.
+2. **Page param crash**: `?page=abc` or `?page=-5` on endpoint detail and forwarding logs would crash. Fixed with try/except and clamping to min 1.
+3. **Generic HTML error responses**: HTTP exception handler only handled 401 redirects, returning raw `Error {code}: {detail}` text for all other errors. Created professional `error.html` template with branded design, contextual messages for 404/403/500, and navigation links.
+4. **No delete confirmation**: Delete endpoint button in edit.html submitted immediately with no confirmation. Added `confirm()` dialog warning about permanent data loss.
+5. **Content-Length pre-check missing**: Receiver loaded entire request body into memory before checking size limit. Added Content-Length header pre-check to reject oversized requests before reading the body.
+6. **copyUrl() JS bug**: `copyUrl()` function in detail.html referenced `event.currentTarget` without `event` being passed as parameter. Fixed to accept `btn` parameter explicitly.
+
+#### UI/UX Polish:
+7. **Landing page Team plan**: "Team workspaces" and "API access" features marked as "(coming soon)" since they aren't implemented yet.
+8. **Team CTA button**: Changed "Contact Sales" to "Get Started" for consistency (all plans link to register).
+9. **Register page**: Replaced broken `#` placeholder links for Terms/Privacy with a "Sign in" link instead.
+10. **Favicon**: Added inline SVG favicon to base.html matching the HookDash brand icon.
+11. **Meta description**: Added `<meta name="description">` to base.html for SEO.
+12. **Nav plan badge**: Added user's current plan as a small badge next to their name in the authenticated nav bar.
+
+#### New Tests Added (12 tests in test_qa.py):
+- Error page rendering: 404 renders template (2 tests)
+- Int conversion safety: non-numeric response_code on create/edit, invalid/negative page params, non-numeric forwarding retries/timeout (5 tests)
+- Content-Length pre-check: oversized Content-Length header rejected early (1 test)
+- Landing page content: "coming soon" text present, favicon present (2 tests)
+- Nav plan badge: dashboard shows plan badge (1 test)
+- Edit delete confirmation: confirm() dialog present in edit page (1 test)
+
+#### Final Test Results: **99/99 passing**
+- 2 health + 24 auth + 19 endpoints + 15 receiver + 27 forwarding + 12 QA
+- All bugs fixed, all new code paths covered
+- Phase changed to DEPLOYMENT
+
 ## Known Issues
-(none yet)
+(none — all issues found during QA have been resolved)
 
 ## Files Structure
 ```
@@ -259,7 +292,8 @@ hook-dash/
 │       │   ├── receiver.py      # Webhook storage, history, stats queries
 │       │   └── forwarding.py    # Forwarding engine, retries, stats, CRUD
 │       └── templates/
-│           ├── base.html        # Base layout (Tailwind, Inter, HTMX)
+│           ├── base.html        # Base layout (Tailwind, Inter, HTMX, favicon)
+│           ├── error.html       # Branded error page (404, 403, 500, etc.)
 │           ├── landing.html     # Public landing page
 │           ├── partials/
 │           │   └── nav.html     # Shared authenticated nav bar
@@ -283,5 +317,6 @@ hook-dash/
     ├── test_auth.py             # Auth tests (24 tests: unit + integration)
     ├── test_endpoints.py        # Endpoint CRUD tests (19 tests)
     ├── test_receiver.py         # Receiver + history + dashboard stats tests (15 tests)
-    └── test_forwarding.py       # Forwarding tests (27 tests: config, logs, service, UI)
+    ├── test_forwarding.py       # Forwarding tests (27 tests: config, logs, service, UI)
+    └── test_qa.py               # QA tests (12 tests: error pages, int safety, UI polish)
 ```

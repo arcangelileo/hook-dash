@@ -40,8 +40,11 @@ templates = Jinja2Templates(directory="src/app/templates")
 async def http_exception_handler(request: Request, exc: StarletteHTTPException):
     if exc.status_code == 401:
         return RedirectResponse(url="/auth/login", status_code=302)
-    return HTMLResponse(
-        content=f"Error {exc.status_code}: {exc.detail}", status_code=exc.status_code
+    return templates.TemplateResponse(
+        request,
+        "error.html",
+        {"status_code": exc.status_code, "detail": exc.detail or "An error occurred"},
+        status_code=exc.status_code,
     )
 
 

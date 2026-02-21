@@ -81,6 +81,15 @@ async def receive_webhook(
             media_type="application/json",
         )
 
+    # Pre-check Content-Length header to reject obviously too-large requests early
+    content_length = request.headers.get("content-length")
+    if content_length and content_length.isdigit() and int(content_length) > settings.max_body_size:
+        return Response(
+            content='{"error": "Request body too large (max 1MB)"}',
+            status_code=413,
+            media_type="application/json",
+        )
+
     body_bytes = await request.body()
     if len(body_bytes) > settings.max_body_size:
         return Response(

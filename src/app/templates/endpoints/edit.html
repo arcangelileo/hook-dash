@@ -86,7 +86,7 @@
                 </div>
 
                 <div class="flex items-center justify-between pt-2">
-                    <button type="button" onclick="document.getElementById('delete-form').submit()"
+                    <button type="button" onclick="if(confirm('Are you sure you want to delete this endpoint? All webhook history will be permanently lost.')) document.getElementById('delete-form').submit()"
                         class="rounded-lg px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors">
                         Delete Endpoint
                     </button>
