@@ -1,6 +1,6 @@
 # HookDash
 
-Phase: DEVELOPMENT
+Phase: QA
 
 ## Project Spec
 - **Repo**: https://github.com/arcangelileo/hook-dash
@@ -47,10 +47,10 @@ Phase: DEVELOPMENT
 - [x] Build main dashboard with stats, charts, and recent activity
 - [x] Add search, filtering, and pagination across all list views
 - [x] Write comprehensive test suite (auth, endpoints, receiver, forwarding, API)
-- [ ] Implement webhook forwarding engine with retry logic (background tasks + APScheduler)
-- [ ] Build forwarding configuration UI and forwarding logs view
-- [ ] Write Dockerfile and docker-compose.yml
-- [ ] Write README with setup, usage, and deployment instructions
+- [x] Implement webhook forwarding engine with retry logic (background tasks + APScheduler)
+- [x] Build forwarding configuration UI and forwarding logs view
+- [x] Write Dockerfile and docker-compose.yml
+- [x] Write README with setup, usage, and deployment instructions
 
 ## Progress Log
 ### Session 1 — IDEATION
@@ -147,6 +147,66 @@ Phase: DEVELOPMENT
   - History: display (1), method filter (1), search (1), dashboard stats (1)
 - All 60 tests passing (2 health + 24 auth + 19 endpoints + 15 receiver)
 
+### Session 5 — FORWARDING, DOCKER & README
+- Built complete webhook forwarding engine:
+  - `forward_webhook()`: Forwards a single request to the target URL via httpx, logs status code, response time, errors
+  - `forward_with_retries()`: Exponential backoff retry logic (configurable max_retries 1-10, delay capped at 30s)
+  - Auto-forwarding integration in webhook receiver: when a webhook is received and forwarding is active, forwards via FastAPI BackgroundTasks with its own DB session
+  - Headers forwarded from original request (excluding hop-by-hop headers: host, content-length, transfer-encoding, connection)
+  - Custom `X-HookDash-Request-Id` and `X-HookDash-Attempt` headers added to forwarded requests
+  - Error handling for: timeouts, connection refused, HTTP error status codes, generic exceptions
+- Built forwarding service layer:
+  - CRUD for ForwardingConfig (create, get, update, delete)
+  - ForwardingLog creation and paginated listing
+  - `get_forwarding_stats()`: aggregated stats (total, successes, failures, success rate, avg response time)
+- Built forwarding API routes:
+  - POST /endpoints/{id}/forwarding — create or update forwarding config with validation (URL required, must be http/https, retries clamped 1-10, timeout clamped 5-120s)
+  - POST /endpoints/{id}/forwarding/delete — remove forwarding config with confirmation dialog
+  - GET /endpoints/{id}/forwarding/logs — paginated forwarding logs table with status badges, HTTP codes, response times, error messages
+  - POST /endpoints/{id}/replay/{request_id} — manually replay/forward a captured webhook request
+  - All routes enforce user ownership (redirects to /endpoints for unauthorized access)
+- Built forwarding UI:
+  - Forwarding config section on endpoint detail page:
+    - Status badge (Active/Paused), target URL input, max retries, timeout, enable checkbox
+    - Stats grid (total forwarded, successful, failed, success rate) when config exists
+    - Error display for validation errors
+    - Delete button with confirmation dialog
+    - View Logs link
+  - Replay button on each webhook request row when forwarding is active
+  - Forwarding logs page:
+    - Breadcrumb navigation, endpoint name, config status badge, target URL display
+    - Professional table with status (success/failed badges), HTTP code (color-coded), attempt number, response time, error message, timestamp
+    - Pagination with page numbers
+    - Empty state message
+- Registered forwarding router in main.py
+- Updated endpoint detail route to pass forwarding config and stats to template
+- Wrote 27 comprehensive forwarding tests, all passing:
+  - Config CRUD (8): create, URL required, URL scheme validation, update, disable, delete, unauthorized endpoint, max retries clamped
+  - Logs page (5): auth required, config required, empty state, shows endpoint name, nonexistent endpoint 404
+  - Replay (2): requires config, nonexistent request
+  - Service unit tests (7): forward success (mocked), connection error, timeout, 4xx response, retries with backoff, stats calculation, log listing with pagination
+  - Auto-forwarding UI (5): forwarding section shown, replay button shown/hidden, stats shown, delete on unauthorized endpoint
+- All 87 tests passing (2 health + 24 auth + 19 endpoints + 15 receiver + 27 forwarding)
+- Created Dockerfile:
+  - Python 3.13-slim base, installs dependencies from pyproject.toml
+  - Persistent data volume at /app/data for SQLite database
+  - Configurable via HOOKDASH_ environment variables
+  - Exposes port 8000, runs uvicorn
+- Created docker-compose.yml:
+  - Single service with named volume for data persistence
+  - Environment variable passthrough with defaults
+  - Restart policy: unless-stopped
+- Created .dockerignore to exclude tests, docs, and dev files
+- Updated README with:
+  - Complete feature list including forwarding and replay
+  - Development setup instructions with venv
+  - Environment variable reference table
+  - Docker usage (compose and manual)
+  - Step-by-step usage guide
+  - Full API endpoint reference table
+  - Project structure overview
+- Changed phase to QA — all backlog items complete
+
 ## Known Issues
 (none yet)
 
@@ -156,7 +216,10 @@ hook-dash/
 ├── CLAUDE.md
 ├── README.md
 ├── .gitignore
+├── .dockerignore
 ├── pyproject.toml
+├── Dockerfile
+├── docker-compose.yml
 ├── alembic.ini
 ├── alembic/
 │   ├── env.py
@@ -174,10 +237,10 @@ hook-dash/
 │       ├── api/
 │       │   ├── __init__.py
 │       │   ├── auth.py          # Auth routes (register, login, logout)
-│       │   ├── endpoints.py     # Endpoint CRUD routes (list, create, detail, edit, delete)
-│       │   ├── receiver.py      # Webhook receiver catch-all route
+│       │   ├── endpoints.py     # Endpoint CRUD routes + forwarding config pass-through
+│       │   ├── receiver.py      # Webhook receiver catch-all with auto-forwarding
 │       │   ├── dashboard.py     # Dashboard with real stats
-│       │   └── forwarding.py    # Forwarding router (stub)
+│       │   └── forwarding.py    # Forwarding config CRUD, logs page, replay
 │       ├── models/
 │       │   ├── __init__.py      # Re-exports all models
 │       │   ├── user.py          # User model
@@ -194,7 +257,7 @@ hook-dash/
 │       │   ├── auth.py          # Auth service (hash, verify, JWT, register, authenticate)
 │       │   ├── endpoint.py      # Endpoint CRUD service (create, list, get, update, delete)
 │       │   ├── receiver.py      # Webhook storage, history, stats queries
-│       │   └── forwarding.py    # Forwarding service (stub)
+│       │   └── forwarding.py    # Forwarding engine, retries, stats, CRUD
 │       └── templates/
 │           ├── base.html        # Base layout (Tailwind, Inter, HTMX)
 │           ├── landing.html     # Public landing page
@@ -205,18 +268,20 @@ hook-dash/
 │           │   └── register.html # Registration page
 │           ├── dashboard/
 │           │   └── index.html   # Dashboard with real stats and endpoint list
-│           └── endpoints/
-│               ├── list.html    # Endpoints grid view
-│               ├── new.html     # Create endpoint form
-│               ├── edit.html    # Edit endpoint form
-│               ├── detail.html  # Endpoint detail + webhook history
-│               └── not_found.html # 404 page for endpoints
+│           ├── endpoints/
+│           │   ├── list.html    # Endpoints grid view
+│           │   ├── new.html     # Create endpoint form
+│           │   ├── edit.html    # Edit endpoint form
+│           │   ├── detail.html  # Endpoint detail + webhook history + forwarding config
+│           │   └── not_found.html # 404 page for endpoints
+│           └── forwarding/
+│               └── logs.html    # Forwarding logs table with pagination
 └── tests/
     ├── __init__.py
     ├── conftest.py              # Async test fixtures, in-memory SQLite
-    ├── test_health.py           # Health check + landing page tests
+    ├── test_health.py           # Health check + landing page tests (2 tests)
     ├── test_auth.py             # Auth tests (24 tests: unit + integration)
     ├── test_endpoints.py        # Endpoint CRUD tests (19 tests)
     ├── test_receiver.py         # Receiver + history + dashboard stats tests (15 tests)
-    └── test_forwarding.py       # Forwarding tests (stub)
+    └── test_forwarding.py       # Forwarding tests (27 tests: config, logs, service, UI)
 ```

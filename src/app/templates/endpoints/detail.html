@@ -77,6 +77,136 @@
             </div>
         </div>
 
+        <!-- Forwarding Configuration -->
+        <div class="rounded-xl bg-white ring-1 ring-gray-200 shadow-sm mb-6">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-50">
+                        <svg class="h-4 w-4 text-brand-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-base font-semibold text-gray-900">Webhook Forwarding</h2>
+                        <p class="text-xs text-gray-500">Forward captured webhooks to your local dev server or staging environment</p>
+                    </div>
+                </div>
+                {% if fwd_config %}
+                <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium {% if fwd_config.is_active %}bg-green-50 text-green-700 ring-1 ring-green-600/20{% else %}bg-amber-50 text-amber-700 ring-1 ring-amber-600/20{% endif %}">
+                        {% if fwd_config.is_active %}Forwarding Active{% else %}Paused{% endif %}
+                    </span>
+                    <a href="/endpoints/{{ endpoint.id }}/forwarding/logs"
+                        class="text-xs text-brand-600 hover:text-brand-500 font-medium">View Logs</a>
+                </div>
+                {% endif %}
+            </div>
+
+            {% if fwd_error %}
+            <div class="mx-6 mt-4 rounded-lg bg-red-50 border border-red-200 px-4 py-3">
+                <div class="flex items-center gap-2">
+                    <svg class="h-4 w-4 text-red-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                    </svg>
+                    <p class="text-sm text-red-700">{{ fwd_error }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if fwd_config and fwd_stats %}
+            <!-- Stats when forwarding is configured -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 px-6 py-4 border-b border-gray-100">
+                <div>
+                    <p class="text-xs text-gray-500">Total Forwarded</p>
+                    <p class="text-lg font-semibold text-gray-900">{{ "{:,}".format(fwd_stats.total) }}</p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500">Successful</p>
+                    <p class="text-lg font-semibold text-green-600">{{ "{:,}".format(fwd_stats.successes) }}</p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500">Failed</p>
+                    <p class="text-lg font-semibold {% if fwd_stats.failures > 0 %}text-red-600{% else %}text-gray-900{% endif %}">{{ "{:,}".format(fwd_stats.failures) }}</p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500">Success Rate</p>
+                    <p class="text-lg font-semibold text-gray-900">{{ fwd_stats.success_rate }}%</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="px-6 py-5">
+                <form method="post" action="/endpoints/{{ endpoint.id }}/forwarding" class="space-y-4">
+                    <div>
+                        <label for="target_url" class="block text-sm font-medium text-gray-700 mb-1">Target URL</label>
+                        <input type="url" name="target_url" id="target_url"
+                            value="{{ fwd_config.target_url if fwd_config else '' }}"
+                            placeholder="https://your-server.com/webhook or http://localhost:3000/api/webhook"
+                            class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all">
+                        <p class="mt-1 text-xs text-gray-500">The URL where incoming webhooks will be forwarded to</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label for="max_retries" class="block text-sm font-medium text-gray-700 mb-1">Max Retries</label>
+                            <input type="number" name="max_retries" id="max_retries" min="1" max="10"
+                                value="{{ fwd_config.max_retries if fwd_config else 5 }}"
+                                class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all">
+                            <p class="mt-1 text-xs text-gray-500">1-10 attempts with exponential backoff</p>
+                        </div>
+                        <div>
+                            <label for="timeout_seconds" class="block text-sm font-medium text-gray-700 mb-1">Timeout (seconds)</label>
+                            <input type="number" name="timeout_seconds" id="timeout_seconds" min="5" max="120"
+                                value="{{ fwd_config.timeout_seconds if fwd_config else 30 }}"
+                                class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all">
+                            <p class="mt-1 text-xs text-gray-500">5-120 seconds per attempt</p>
+                        </div>
+                        <div class="flex items-end">
+                            <label class="flex items-center gap-2 cursor-pointer py-2">
+                                <input type="checkbox" name="is_active"
+                                    {% if not fwd_config or fwd_config.is_active %}checked{% endif %}
+                                    class="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500">
+                                <span class="text-sm font-medium text-gray-700">Enable forwarding</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between pt-2">
+                        <div class="flex items-center gap-3">
+                            <button type="submit"
+                                class="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 transition-all">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+                                </svg>
+                                {% if fwd_config %}Update Forwarding{% else %}Enable Forwarding{% endif %}
+                            </button>
+                            {% if fwd_config %}
+                            <a href="/endpoints/{{ endpoint.id }}/forwarding/logs"
+                                class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
+                                </svg>
+                                View Logs
+                            </a>
+                            {% endif %}
+                        </div>
+                        {% if fwd_config %}
+                        <form method="post" action="/endpoints/{{ endpoint.id }}/forwarding/delete"
+                            onsubmit="return confirm('Remove forwarding configuration? This will stop all forwarding for this endpoint.')">
+                            <button type="submit"
+                                class="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                </svg>
+                                Remove
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <!-- Webhook History -->
         <div class="rounded-xl bg-white ring-1 ring-gray-200 shadow-sm">
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-6 py-4 border-b border-gray-100">
@@ -107,21 +237,34 @@
             <div class="divide-y divide-gray-100">
                 {% for req in webhook_requests %}
                 <div class="group">
-                    <button onclick="toggleDetail('req-{{ req.id }}')" class="w-full flex items-center justify-between px-6 py-3 hover:bg-gray-50 transition-colors text-left">
-                        <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-full flex items-center justify-between px-6 py-3 hover:bg-gray-50 transition-colors text-left">
+                        <button onclick="toggleDetail('req-{{ req.id }}')" class="flex items-center gap-3 min-w-0 flex-1">
                             {% set method_colors = {"GET": "bg-blue-100 text-blue-700", "POST": "bg-green-100 text-green-700", "PUT": "bg-amber-100 text-amber-700", "PATCH": "bg-purple-100 text-purple-700", "DELETE": "bg-red-100 text-red-700", "HEAD": "bg-gray-100 text-gray-700", "OPTIONS": "bg-gray-100 text-gray-700"} %}
                             <span class="method-badge inline-flex items-center rounded px-1.5 py-0.5 font-bold uppercase {{ method_colors.get(req.method, 'bg-gray-100 text-gray-700') }} shrink-0 w-16 justify-center">{{ req.method }}</span>
                             <span class="text-xs text-gray-500 font-mono truncate">{{ req.content_type or "—" }}</span>
                             <span class="text-xs text-gray-400 hidden sm:inline">{{ req.body_size }} bytes</span>
-                        </div>
-                        <div class="flex items-center gap-3 shrink-0">
+                        </button>
+                        <div class="flex items-center gap-2 shrink-0">
+                            {% if fwd_config and fwd_config.is_active %}
+                            <form method="post" action="/endpoints/{{ endpoint.id }}/replay/{{ req.id }}" class="inline">
+                                <button type="submit" title="Replay / forward this request"
+                                    class="inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-medium text-brand-600 hover:bg-brand-50 transition-colors">
+                                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
+                                    </svg>
+                                    Replay
+                                </button>
+                            </form>
+                            {% endif %}
                             <span class="text-xs text-gray-400">{{ req.source_ip }}</span>
                             <span class="text-xs text-gray-400">{{ req.created_at.strftime('%b %d, %H:%M:%S') }}</span>
-                            <svg class="h-4 w-4 text-gray-400 transition-transform" id="chevron-{{ req.id }}" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                            </svg>
+                            <button onclick="toggleDetail('req-{{ req.id }}')" class="p-1">
+                                <svg class="h-4 w-4 text-gray-400 transition-transform" id="chevron-{{ req.id }}" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                </svg>
+                            </button>
                         </div>
-                    </button>
+                    </div>
                     <!-- Expanded Detail -->
                     <div id="req-{{ req.id }}" class="hidden border-t border-gray-100 bg-gray-50/50 px-6 py-4">
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -241,7 +384,6 @@ function toggleDetail(id) {
 function copyUrl() {
     const url = document.getElementById('webhook-url').textContent;
     navigator.clipboard.writeText(url).then(() => {
-        // Brief visual feedback
         const btn = event.currentTarget;
         btn.innerHTML = '<svg class="h-4 w-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>';
         setTimeout(() => {

@@ -1,0 +1,15 @@
+services:
+  hookdash:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - hookdash-data:/app/data
+    environment:
+      - HOOKDASH_SECRET_KEY=${HOOKDASH_SECRET_KEY:-change-me-in-production-use-a-real-secret}
+      - HOOKDASH_DATABASE_URL=sqlite+aiosqlite:///./data/hookdash.db
+      - HOOKDASH_DEBUG=false
+    restart: unless-stopped
+
+volumes:
+  hookdash-data:

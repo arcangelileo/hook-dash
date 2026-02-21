@@ -8,6 +8,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from app.api.auth import router as auth_router
 from app.api.dashboard import router as dashboard_router
 from app.api.endpoints import router as endpoints_router
+from app.api.forwarding import router as forwarding_router
 from app.api.receiver import router as receiver_router
 from app.config import settings
 from app.database import init_db
@@ -29,6 +30,7 @@ app = FastAPI(
 app.include_router(auth_router)
 app.include_router(dashboard_router)
 app.include_router(endpoints_router)
+app.include_router(forwarding_router)
 app.include_router(receiver_router)
 
 templates = Jinja2Templates(directory="src/app/templates")

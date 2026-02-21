@@ -16,6 +16,7 @@ from app.services.endpoint import (
     update_endpoint,
     PLAN_ENDPOINT_LIMITS,
 )
+from app.services.forwarding import get_forwarding_config, get_forwarding_stats
 from app.services.receiver import list_webhook_requests
 
 router = APIRouter(prefix="/endpoints", tags=["endpoints"])
@@ -142,6 +143,14 @@ async def endpoint_detail(
     total_pages = max(1, (total + per_page - 1) // per_page)
     webhook_url = f"{request.base_url}hooks/{endpoint.id}"
 
+    # Get forwarding config and stats
+    fwd_config = await get_forwarding_config(db, endpoint_id)
+    fwd_stats = None
+    if fwd_config:
+        fwd_stats = await get_forwarding_stats(db, fwd_config.id)
+
+    fwd_error = request.query_params.get("fwd_error")
+
     return templates.TemplateResponse(
         request,
         "endpoints/detail.html",
@@ -155,6 +164,9 @@ async def endpoint_detail(
             "total_pages": total_pages,
             "method_filter": method_filter or "",
             "search": search or "",
+            "fwd_config": fwd_config,
+            "fwd_stats": fwd_stats,
+            "fwd_error": fwd_error,
         },
     )
 
