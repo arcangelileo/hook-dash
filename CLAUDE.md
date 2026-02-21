@@ -1,6 +1,6 @@
 # HookDash
 
-Phase: DEPLOYMENT
+Phase: COMPLETE
 
 ## Project Spec
 - **Repo**: https://github.com/arcangelileo/hook-dash
@@ -240,6 +240,42 @@ Phase: DEPLOYMENT
 - All bugs fixed, all new code paths covered
 - Phase changed to DEPLOYMENT
 
+### Session 7 — DEPLOYMENT & COMPLETION
+- Upgraded Dockerfile to production-ready multi-stage build:
+  - **Stage 1 (builder)**: Installs gcc and compiles Python dependencies into a prefix
+  - **Stage 2 (production)**: Copies only installed packages — no gcc, no build tools in final image
+  - Non-root user (`hookdash:1000`) for security
+  - `HEALTHCHECK` directive: hits `/health` every 30s with 3s timeout, 10s start period, 3 retries
+  - Exec-form `CMD` so uvicorn receives SIGTERM directly for graceful shutdown
+  - `--proxy-headers` and `--forwarded-allow-ips=*` for reverse proxy support
+- Updated docker-compose.yml:
+  - Added container name, configurable host port via `HOOKDASH_PORT`
+  - Added health check matching Dockerfile
+  - Passthrough for `HOOKDASH_MAX_BODY_SIZE` env var
+- Created `.env.example` with all 17 environment variables fully documented:
+  - Security, database, application, webhook limits, auth, plan limit overrides, Docker Compose settings
+  - Includes inline generation command for secret key
+- Rewrote README.md comprehensively:
+  - Feature table with 10 capability categories
+  - Docker quick start (one-liner) and manual `docker run`
+  - Local development setup (venv, pip, alembic, uvicorn)
+  - Step-by-step usage guide (8 steps)
+  - Full API reference: 16 routes across 5 sections (public, auth, dashboard/endpoints, forwarding, receiver)
+  - Complete configuration table with all 17 env vars, defaults, and descriptions
+  - ASCII architecture diagram showing request flow from browser/third-party through FastAPI to SQLite and forwarding targets
+  - Tech stack table (8 layers)
+  - Key design decisions section
+  - Project structure tree with annotations
+  - Testing instructions
+  - Deployment checklist (5 items)
+  - Contributing guidelines (7 steps)
+- Fixed 2 lint issues found by ruff:
+  - Removed unused `EmailStr` import in `schemas/auth.py`
+  - Changed `== True` to `.is_(True)` in `services/forwarding.py` (SQLAlchemy best practice)
+- All 99 tests passing after cleanup
+- Ruff lint: 0 errors
+- Phase changed to COMPLETE — all features implemented, tested, documented, and production-ready
+
 ## Known Issues
 (none — all issues found during QA have been resolved)
 
@@ -250,6 +286,7 @@ hook-dash/
 ├── README.md
 ├── .gitignore
 ├── .dockerignore
+├── .env.example
 ├── pyproject.toml
 ├── Dockerfile
 ├── docker-compose.yml

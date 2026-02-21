@@ -124,7 +124,7 @@ async def get_forwarding_stats(
     success_result = await db.execute(
         select(func.count(ForwardingLog.id)).where(
             ForwardingLog.forwarding_config_id == forwarding_config_id,
-            ForwardingLog.success == True,
+            ForwardingLog.success.is_(True),
         )
     )
     successes = success_result.scalar_one()

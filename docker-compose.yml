@@ -1,15 +1,23 @@
 services:
   hookdash:
     build: .
+    container_name: hookdash
     ports:
-      - "8000:8000"
+      - "${HOOKDASH_PORT:-8000}:8000"
     volumes:
       - hookdash-data:/app/data
     environment:
       - HOOKDASH_SECRET_KEY=${HOOKDASH_SECRET_KEY:-change-me-in-production-use-a-real-secret}
       - HOOKDASH_DATABASE_URL=sqlite+aiosqlite:///./data/hookdash.db
-      - HOOKDASH_DEBUG=false
+      - HOOKDASH_DEBUG=${HOOKDASH_DEBUG:-false}
+      - HOOKDASH_MAX_BODY_SIZE=${HOOKDASH_MAX_BODY_SIZE:-1048576}
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 3s
+      start_period: 10s
+      retries: 3
 
 volumes:
   hookdash-data:
